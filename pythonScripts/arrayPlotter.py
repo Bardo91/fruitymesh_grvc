@@ -45,6 +45,14 @@ else:
             rssisMedian.append(median(rssis[i - T:i]))
             rssisMode.append(cmode(rssis[i - T:i]))
 
+    dotIdx = inputFileName.rfind(".")
+    outputFileName = inputFileName[:dotIdx] + "_processed.txt"
+    processedLog = open(outputFileName, "w")
+    for i in range(len(rssis)):
+        if(i >= T):
+            processedLog.write(str(rssis[i]) + ", "+str(rssisMean[i-T]) + ", "+str(rssisMedian[i-T]) + ", "+str(rssisMode[i-T]) + "\n")
+
+
     plt.figure(1)
     plt.plot(rssis[T:], 'k')
     plt.plot(rssisMean, 'b')
