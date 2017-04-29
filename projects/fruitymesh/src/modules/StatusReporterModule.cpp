@@ -36,7 +36,7 @@ StatusReporterModule::StatusReporterModule(u8 moduleId, Node* node, ConnectionMa
 	: Module(moduleId, node, cm, name, storageSlot)
 {
 	//Register callbacks n' stuff
-	Logger::getInstance().enableTag("STATUSMOD");
+	//Logger::getInstance().enableTag("STATUSMOD");
 
 	//Save configuration to base class variables
 	//sizeof configuration must be a multiple of 4 bytes

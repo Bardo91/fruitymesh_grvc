@@ -71,7 +71,7 @@ class CustomModule: public Module
 
 		void TimerEventHandler(u16 passedTime, u32 appTimer);
 
-		//void BleEventHandler(ble_evt_t* bleEvent);
+		void BleEventHandler(ble_evt_t* bleEvent);
 
 		void ConnectionPacketReceivedEventHandler(connectionPacket* inPacket, Connection* connection, connPacketHeader* packetHeader, u16 dataLength);
 

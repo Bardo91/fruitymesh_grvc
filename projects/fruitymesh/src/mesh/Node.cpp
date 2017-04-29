@@ -123,6 +123,8 @@ Node::Node(networkID networkId)
 #ifdef ACTIVATE_IO_MODULE
 	activeModules[6] = new IoModule(moduleID::IO_MODULE_ID, this, cm, "io", 7);
 #endif
+
+	// CUSTOM MODULE!
 	activeModules[7] = new CustomModule(moduleID::CUSTOM_MODULE, this, cm, "custom", 8);
 
 	//Register a pre/post transmit hook for radio events

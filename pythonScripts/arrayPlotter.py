@@ -5,6 +5,18 @@ import matplotlib.pyplot as plt
 from statistics import mean, mode, median
 import array
 
+def cmode(array):
+    values = []
+    repetitions = []
+    for i in range(len(array)):
+        if(array[i] in values):
+            repetitions[values.index(array[i])] += 1
+        else:
+            values.append(array[i])
+            repetitions.append(0)
+    maxRepetitions = max(repetitions)
+    return values[repetitions.index(maxRepetitions)]
+
 if len(argv) != 2:
     print("Error, necesita argumento de entrada")
     exit()
@@ -26,19 +38,17 @@ else:
     rssisMean = []
     rssisMedian = []
     rssisMode = []
-    T = 10;
+    T = 20;
     for i in range(len(rssis)):
         if(i >= T):
             rssisMean.append(mean(rssis[i-T:i]))
             rssisMedian.append(median(rssis[i - T:i]))
-            #rssisMode.append(mode(rssis[i - T:i]))
+            rssisMode.append(cmode(rssis[i - T:i]))
 
     plt.figure(1)
-    plt.plot(rssisMean, 'b*')
-    plt.plot(rssisMedian, 'r*')
-    plt.legend(['mean', 'median'])
+    plt.plot(rssis[T:], 'k')
+    plt.plot(rssisMean, 'b')
+    plt.plot(rssisMedian, 'r')
+    plt.plot(rssisMode, 'g')
+    plt.legend(['raw','mean', 'median','mode'])
     plt.show()
-
-    #plt.plot(rssisMode, '*')
-    #plt.ylabel('mode')
-    #plt.show()

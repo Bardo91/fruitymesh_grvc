@@ -41,7 +41,7 @@ EnrollmentModule::EnrollmentModule(u8 moduleId, Node* node, ConnectionManager* c
 	: Module(moduleId, node, cm, name, storageSlot)
 {
 	//Register callbacks n' stuff
-	Logger::getInstance().enableTag("ENROLLMOD");
+	//Logger::getInstance().enableTag("ENROLLMOD");
 
 	rebootTimeDs = 0;
 

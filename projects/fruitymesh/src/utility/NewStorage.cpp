@@ -16,7 +16,7 @@ bool NewStorage::dataBufferInUse = false;
 
 void NewStorage::Init()
 {
-	Logger::getInstance().enableTag("NEWSTORAGE");
+	//Logger::getInstance().enableTag("NEWSTORAGE");
 
 	//Initialize queue for queueing store and load tasks
 	taskQueue = new SimpleQueue(taskBuffer, NEW_STORAGE_TASK_QUEUE_LENGTH*sizeof(NewStorageTaskItem));

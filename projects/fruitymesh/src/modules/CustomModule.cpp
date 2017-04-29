@@ -38,11 +38,11 @@ extern "C"{
 	#include <nrf_delay.h>
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 CustomModule::CustomModule(u8 moduleId, Node* node, ConnectionManager* cm, const char* name, u16 storageSlot)
-	: Module(moduleId, node, cm, name, storageSlot)
-{
+	: Module(moduleId, node, cm, name, storageSlot) {
 	//Register callbacks n' stuff
-	Logger::getInstance().enableTag("CUSTOMMOD");
+	//Logger::getInstance().enableTag("CUSTOMMOD");
 
 	//Save configuration to base class variables
 	//sizeof configuration must be a multiple of 4 bytes
@@ -53,8 +53,8 @@ CustomModule::CustomModule(u8 moduleId, Node* node, ConnectionManager* cm, const
 	LoadModuleConfiguration();
 }
 
-void CustomModule::ConfigurationLoadedHandler()
-{
+//---------------------------------------------------------------------------------------------------------------------
+void CustomModule::ConfigurationLoadedHandler() {
 	//Does basic testing on the loaded configuration
 	Module::ConfigurationLoadedHandler();
 
@@ -75,21 +75,21 @@ void CustomModule::ConfigurationLoadedHandler()
 
 }
 
-void CustomModule::TimerEventHandler(u16 passedTime, u32 appTimer)
-{
+//---------------------------------------------------------------------------------------------------------------------
+void CustomModule::TimerEventHandler(u16 passedTime, u32 appTimer){
 	//Do stuff on timer...
-	/*if(configuration.pingInterval != 0 && node->appTimerMs - configuration.lastPingTimer > configuration.pingInterval)
+	/*if(//---------------------------------------------------------------------------------------------------------------------configuration.pingInterval != 0 && node->appTimerMs - configuration.lastPingTimer > configuration.pingInterval)
 		{
 			configuration.lastPingTimer = node->appTimerMs;
 			SendPing(11392);
 		}*/
 }
 
-void CustomModule::ResetToDefaultConfiguration()
-{
+//---------------------------------------------------------------------------------------------------------------------
+void CustomModule::ResetToDefaultConfiguration(){
 	//Set default configuration values
 	configuration.moduleId = moduleId;
-	configuration.moduleActive = false;
+	configuration.moduleActive = true;	// 999 SET TO ACTIVE TO HANDLE BLE EVENTS!
 	configuration.moduleVersion = 1;
 
 	//Set additional config values...
@@ -99,13 +99,12 @@ void CustomModule::ResetToDefaultConfiguration()
 
 	configuration.pingInterval = kTimerInterval;
 	configuration.lastPingTimer = 0;
-
 	//Set additional config values...
-	logt("PINGMOD", "Reset");
+	logt("CUSTOMMOD", "Reset");
 }
 
-bool CustomModule::SendPing(nodeID targetNodeId)
-{
+//---------------------------------------------------------------------------------------------------------------------
+bool CustomModule::SendPing(nodeID targetNodeId) {
 	// logt("PINGMOD", "Trying to ping node %u from %u", targetNodeId, node->persistentConfig.nodeId);
 
 	logt("CUSTOMMOD", "Trying to ping node %u", targetNodeId);
@@ -128,6 +127,7 @@ bool CustomModule::SendPing(nodeID targetNodeId)
 	return(true);
 }
 
+//---------------------------------------------------------------------------------------------------------------------
 bool CustomModule::TerminalCommandHandler(string commandName, vector<string> commandArgs) {
 	if(commandName == "custommod") {
 		if(commandArgs[0] == "start"){
@@ -162,9 +162,16 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 	return Module::TerminalCommandHandler(commandName, commandArgs);
 }
 
+//---------------------------------------------------------------------------------------------------------------------
+void CustomModule::BleEventHandler(ble_evt_t* bleEvent){
+	if(bleEvent->header.evt_id == BLE_GAP_EVT_RSSI_CHANGED) {
+		i8 rssi = bleEvent->evt.gap_evt.params.rssi_changed.rssi;
+		logt("CUSTOMMOD", "BLE event handled with rssi: %d", rssi);
+	}
+};
 
-void CustomModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket, Connection* connection, connPacketHeader* packetHeader, u16 dataLength)
-{
+//---------------------------------------------------------------------------------------------------------------------
+void CustomModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket, Connection* connection, connPacketHeader* packetHeader, u16 dataLength) {
 	//Must call superclass for handling
 	Module::ConnectionPacketReceivedEventHandler(inPacket, connection, packetHeader, dataLength);
 
@@ -199,7 +206,6 @@ void CustomModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPack
 	//Parse Module responses
 	if(packetHeader->messageType == MESSAGE_TYPE_MODULE_ACTION_RESPONSE){
 		connPacketModule* packet = (connPacketModule*)packetHeader;
-
 		//Check if our module is meant and we should trigger an action
 		if(packet->moduleId == moduleId)
 		{

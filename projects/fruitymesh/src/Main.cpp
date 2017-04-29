@@ -38,7 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Config.h>
 #include <NewStorage.h>
 
-
 extern "C"{
 #include <stdlib.h>
 #include <nrf_soc.h>
@@ -102,28 +101,27 @@ int main(void)
 
 	//Initialize the UART Terminal
 	Terminal::Init();
-
-	//Testing* testing = new Testing();
-
-	//testing->testPacketQueue();
-
 	uart("ERROR", "{\"version\":2}" SEP);
 
 	//Enable logging for some interesting log tags
-	Logger::getInstance().enableTag("NODE");
-	Logger::getInstance().enableTag("STORAGE");
-	Logger::getInstance().enableTag("DATA");
-	Logger::getInstance().enableTag("SEC");
-	Logger::getInstance().enableTag("HANDSHAKE");
-//	Logger::getInstance().enableTag("DISCOVERY");
-//	Logger::getInstance().enableTag("CONN");
-//	Logger::getInstance().enableTag("STATES");
-//	Logger::getInstance().enableTag("ADV");
-//	Logger::getInstance().enableTag("SINK");
-//	Logger::getInstance().enableTag("CM");
-//	Logger::getInstance().enableTag("CONN");
-//	Logger::getInstance().enableTag("CONN_DATA");
-//	Logger::getInstance().enableTag("STATES");
+	//Logger::getInstance().enableTag("STATUSMOD");
+	//Logger::getInstance().enableTag("NODE");
+	//Logger::getInstance().enableTag("STORAGE");
+	//Logger::getInstance().enableTag("DATA");
+	//Logger::getInstance().enableTag("SEC");
+	//Logger::getInstance().enableTag("HANDSHAKE");
+	//Logger::getInstance().enableTag("DISCOVERY");
+	//Logger::getInstance().enableTag("CONN");
+	//Logger::getInstance().enableTag("STATES");
+	//Logger::getInstance().enableTag("ADV");
+	//Logger::getInstance().enableTag("SINK");
+	//Logger::getInstance().enableTag("CM");
+	//Logger::getInstance().enableTag("CONN");
+	//Logger::getInstance().enableTag("CONN_DATA");
+	//Logger::getInstance().enableTag("STATES");
+	//Logger::getInstance().enableTag("SCANMOD");
+	Logger::getInstance().enableTag("MAIN");
+	Logger::getInstance().enableTag("CUSTOMMOD");
 
 	//Initialize GPIOTE for Buttons
 	initGpioteButtons();
@@ -140,33 +138,6 @@ int main(void)
 	//Init the magic
 	node = new Node(Config->meshNetworkIdentifier);
 
-	//Entrance 1,1
-	//string line = "set_config this adv 01:01:01:00:64:00:01:04:01:F1:02:01:06:1A:FF:4C:00:02:15:E6:C9:4B:91:13:99:42:0B:AB:B7:30:AF:D2:45:03:94:00:01:00:01:CB:00 0";
-
-	//Entrance 1,2
-//	string line = "set_config this adv 01:01:01:00:64:00:01:04:01:F1:02:01:06:1A:FF:4C:00:02:15:E6:C9:4B:91:13:99:42:0B:AB:B7:30:AF:D2:45:03:94:00:01:00:02:CB:00 0";
-//
-//	//Garage 1,3
-//	string line = "set_config this adv 01:01:01:00:64:00:01:04:01:F1:02:01:06:1A:FF:4C:00:02:15:A6:C9:4B:91:13:99:42:0B:AB:B7:30:AF:D2:45:03:94:00:01:00:03:CB:00 0";
-//
-//	//Garage 1,4
-//	string line = "set_config this adv 01:01:01:00:64:00:01:04:01:F1:02:01:06:1A:FF:4C:00:02:15:A6:C9:4B:91:13:99:42:0B:AB:B7:30:AF:D2:45:03:94:00:01:00:04:CB:00 0";
-
-	//Asset 11
-	//string line = "set_config this adv 01:01:01:00:64:00:01:04:05:61:02:01:06:08:FF:4D:02:02:0B:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00 0";
-
-	//Asset 7 (kleiner beacon)
-	//string line = "set_config this adv 01:01:01:00:64:00:01:04:05:61:02:01:06:08:FF:4D:02:02:07:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00 0";
-
-	//Terminal::ProcessLine((char*)line.c_str());
-
-	//node->Stop();
-
-
-
-	//new Testing();
-
-
 	//Start Timers
 	initTimers();
 
@@ -176,28 +147,23 @@ int main(void)
 
 	pendingSysEvent = 0;
 
-	while (true)
-	{
+	while (true){
 		u32 err = NRF_ERROR_NOT_FOUND;
-
 		//Check if there is input on uart
 		Terminal::CheckAndProcessLine();
 
-		do
-		{
+		do {
 			//Fetch the event
 			sizeOfCurrentEvent = sizeOfEvent;
 			err = sd_ble_evt_get((u8*)currentEventBuffer, &sizeOfCurrentEvent);
 
 			//Handle ble event event
-			if (err == NRF_SUCCESS)
-			{
+			if (err == NRF_SUCCESS) {
 				//logt("EVENT", "--- EVENT_HANDLER %d -----", currentEvent->header.evt_id);
 				bleDispatchEventHandler(currentEvent);
 			}
 			//No more events available
-			else if (err == NRF_ERROR_NOT_FOUND)
-			{
+			else if (err == NRF_ERROR_NOT_FOUND) {
 				//Handle waiting button event
 				if(button1HoldTimeDs != 0){
 					u32 holdTimeDs = button1HoldTimeDs;
@@ -209,16 +175,12 @@ int main(void)
 				}
 
 				//Handle Timer event that was waiting
-				if (node && node->passsedTimeSinceLastTimerHandlerDs > 0)
-				{
+				if (node && node->passsedTimeSinceLastTimerHandlerDs > 0) {
 					u16 timerDs = node->passsedTimeSinceLastTimerHandlerDs;
-
 					//Call the timer handler from the node
 					node->TimerTickHandler(timerDs);
-
 					//Dispatch timer to all other modules
 					timerEventDispatch(timerDs, node->appTimerDs);
-
 					//FIXME: Should protect this with a semaphore
 					//because the timerInterrupt works asynchronously
 					node->passsedTimeSinceLastTimerHandlerDs -= timerDs;
@@ -237,8 +199,7 @@ int main(void)
 				APP_ERROR_CHECK(err);  // OK
 				break;
 			}
-			else
-			{
+			else {
 				APP_ERROR_CHECK(err); //FIXME: NRF_ERROR_DATA_SIZE not handeled
 				break;
 			}
@@ -257,9 +218,7 @@ void detectBoardAndSetConfig(){
 //INIT function that starts up the Softdevice and registers the needed handlers
 void bleInit(void){
 	u32 err = 0;
-
 	logt("NODE", "Initializing Softdevice version 0x%x, Board %d", SD_FWID_GET(MBR_SIZE), Config->boardType);
-
     // Initialize the SoftDevice handler with the low frequency clock source
 	//And a reference to the previously allocated buffer
 	//No event handler is given because the event handling is done in the main loop
@@ -293,7 +252,7 @@ void bleInit(void){
     params.gap_enable_params.central_conn_count = Config->meshMaxOutConnections; //Number of connections as Central
     params.gap_enable_params.central_sec_count = 1; //this application only needs to be able to pair in one central link at a time
 
-    params.gatts_enable_params.service_changed = IS_SRVC_CHANGED_CHARACT_PRESENT; //we require the Service Changed characteristic
+    params.gatts_enable_params.service_changed = IS_SRVC_CHANGED_CHARACT_PRESENT; //wPINGMODe require the Service Changed characteristic
     params.gatts_enable_params.attr_tab_size = BLE_GATTS_ATTR_TAB_SIZE_DEFAULT; //the default Attribute Table size is appropriate for our application
 
     //The base ram address is gathered from the linker
@@ -306,6 +265,11 @@ void bleInit(void){
 		if(app_ram_base != (u32)__application_ram_start_address){
 			logt("ERROR", "Warning: unused memory: 0x%x", ((u32)__application_ram_start_address) - app_ram_base);
 		}
+
+
+
+	//new Testing();
+
 	} else if(err == NRF_ERROR_NO_MEM) {
 		/* Not enough memory for the SoftDevice. Use output value in linker script */
 		logt("ERROR", "Fatal: Not enough memory for the selected configuration. Required:0x%x", app_ram_base);
@@ -324,14 +288,6 @@ void bleInit(void){
 	//Set preferred TX power
 	err = sd_ble_gap_tx_power_set(Config->radioTransmitPower);
 	APP_ERROR_CHECK(err); //OK
-
-//	//Enable UART interrupt
-//	NRF_UART0->INTENSET = UART_INTENSET_RXDRDY_Enabled << UART_INTENSET_RXDRDY_Pos;
-//	//Enable interrupt forwarding for UART
-//	err = sd_nvic_SetPriority(UART0_IRQn, NRF_APP_PRIORITY_LOW);
-//	APP_ERROR_CHECK(err);
-//	err = sd_nvic_EnableIRQ(UART0_IRQn);
-//	APP_ERROR_CHECK(err);
 }
 
 
@@ -344,8 +300,7 @@ volatile uint32_t keepPc;
 volatile uint32_t keepInfo;
 
 	//The app_error handler is called by all APP_ERROR_CHECK functions
-	void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name)
-	{
+	void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name) {
 		LedBlue->Off();
 		LedRed->Off();
 		if(Config->debugMode) while(1){
@@ -357,8 +312,7 @@ volatile uint32_t keepInfo;
 	}
 
 	//Called when the softdevice crashes
-	void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
-	{
+	void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info) {
 		keepId = id;
 		keepPc = pc;
 		keepInfo = info;
@@ -375,8 +329,7 @@ volatile uint32_t keepInfo;
 	}
 
 	//Dispatches system events
-	void sys_evt_dispatch(uint32_t sys_evt)
-	{
+	void sys_evt_dispatch(uint32_t sys_evt) {
 		//Because there can only be one flash event at a time before registering a new flash operation
 		//We do not need an event queue to handle this. If we want other sys_events, we probably need a queue
 		if(sys_evt == NRF_EVT_FLASH_OPERATION_ERROR
@@ -387,8 +340,7 @@ volatile uint32_t keepInfo;
 	}
 
 	//This is, where the program will get stuck in the case of a Hard fault
-	void HardFault_Handler(void)
-	{
+	void HardFault_Handler(void) {
 		LedBlue->Off();
 		LedGreen->Off();
 		if(Config->debugMode) while(1){
@@ -399,15 +351,13 @@ volatile uint32_t keepInfo;
 	}
 
 	//This handler receives UART interrupts if terminal mode is disabled
-	void UART0_IRQHandler(void)
-	{
+	void UART0_IRQHandler(void) {
 		dispatchUartInterrupt();
 	}
 
 }
 
-void dispatchButtonEvents(u8 buttonId, u32 buttonHoldTime)
-{
+void dispatchButtonEvents(u8 buttonId, u32 buttonHoldTime) {
 	for(int i=0; i<MAX_MODULE_COUNT; i++){
 		if(node != NULL && node->activeModules[i] != 0  && node->activeModules[i]->configurationPointer->moduleActive){
 			node->activeModules[i]->ButtonHandler(buttonId, buttonHoldTime);
@@ -415,17 +365,9 @@ void dispatchButtonEvents(u8 buttonId, u32 buttonHoldTime)
 	}
 }
 
-void bleDispatchEventHandler(ble_evt_t * bleEvent)
-{
+void bleDispatchEventHandler(ble_evt_t * bleEvent) {
 	u16 eventId = bleEvent->header.evt_id;
-
-
 	logt("EVENTS", "BLE EVENT %s (%d)", Logger::getBleEventNameString(eventId), eventId);
-
-//	if(
-//			bleEvent->header.evt_id != BLE_GAP_EVT_RSSI_CHANGED &&
-//			bleEvent->header.evt_id != BLE_GAP_EVT_ADV_REPORT
-//	) trace("<");
 
 	//Give events to all controllers
 	GAPController::bleConnectionEventHandler(bleEvent);
@@ -437,6 +379,7 @@ void bleDispatchEventHandler(ble_evt_t * bleEvent)
 		node->cm->BleEventHandler(bleEvent);
 	}
 
+	
 	//Dispatch ble events to all modules
 	for(int i=0; i<MAX_MODULE_COUNT; i++){
 		if(node != NULL && node->activeModules[i] != 0  && node->activeModules[i]->configurationPointer->moduleActive){

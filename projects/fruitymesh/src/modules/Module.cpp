@@ -41,7 +41,7 @@ Module::Module(u8 moduleId, Node* node, ConnectionManager* cm, const char* name,
 
 	Terminal::AddTerminalCommandListener(this);
 
-	Logger::getInstance().enableTag("MODULE");
+	//Logger::getInstance().enableTag("MODULE");
 }
 
 Module::~Module()

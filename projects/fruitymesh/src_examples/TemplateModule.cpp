@@ -34,7 +34,7 @@ TemplateModule::TemplateModule(u8 moduleId, Node* node, ConnectionManager* cm, c
 	: Module(moduleId, node, cm, name, storageSlot)
 {
 	//Register callbacks n' stuff
-	Logger::getInstance().enableTag("TEMPLATEMOD");
+	//Logger::getInstance().enableTag("TEMPLATEMOD");
 
 	//Save configuration to base class variables
 	//sizeof configuration must be a multiple of 4 bytes

@@ -34,7 +34,7 @@ DebugModule::DebugModule(u8 moduleId, Node* node, ConnectionManager* cm, const c
 	: Module(moduleId, node, cm, name, storageSlot)
 {
 	//Register callbacks n' stuff
-	Logger::getInstance().enableTag("DEBUGMOD");
+	//Logger::getInstance().enableTag("DEBUGMOD");
 
 	//Save configuration to base class variables
 	//sizeof configuration must be a multiple of 4 bytes

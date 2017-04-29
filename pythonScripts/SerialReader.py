@@ -30,6 +30,7 @@ while running:
     try:
         line = ser.readline()
         logFile.write(str(line)+"\n")
+        logFile.flush()
         print(line)
     except:
         running = False
