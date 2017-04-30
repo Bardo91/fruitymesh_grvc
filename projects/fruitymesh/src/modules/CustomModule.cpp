@@ -89,7 +89,7 @@ void CustomModule::TimerEventHandler(u16 passedTime, u32 appTimer){
 void CustomModule::ResetToDefaultConfiguration(){
 	//Set default configuration values
 	configuration.moduleId = moduleId;
-	configuration.moduleActive = true;	// 999 SET TO ACTIVE TO HANDLE BLE EVENTS!
+	configuration.moduleActive = false;	// 999 SET TO ACTIVE TO HANDLE BLE EVENTS!
 	configuration.moduleVersion = 1;
 
 	//Set additional config values...
@@ -130,31 +130,36 @@ bool CustomModule::SendPing(nodeID targetNodeId) {
 //---------------------------------------------------------------------------------------------------------------------
 bool CustomModule::TerminalCommandHandler(string commandName, vector<string> commandArgs) {
 	if(commandName == "custommod") {
-		if(commandArgs[0] == "start"){
+		if(commandArgs[0] == "ping"){
 			nodeID targetNodeId = atoi(commandArgs[1].c_str());
 			//Get the id of the target node
 			logt("CUSTOMMOD", "Trying to ping node %u", targetNodeId);
-			mRunning = true;
-			//while(mRunning){
-				for(int j=1; j<5; j++){
-					SendPing(targetNodeId);	
-					//nrf_delay_us(3000000);
-				}
-				//TODO: Send ping packet to that node
-				connPacketModule packet;
-				packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
-				packet.header.sender = node->persistentConfig.nodeId;
-				packet.header.receiver = targetNodeId;
+			for(int j=1; j<5; j++){
+				SendPing(targetNodeId);	
+			}
+			//TODO: Send ping packet to that node
+			connPacketModule packet;
+			packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
+			packet.header.sender = node->persistentConfig.nodeId;
+			packet.header.receiver = targetNodeId;
 
-				packet.moduleId = moduleId;
-				packet.actionType = CustomModuleTriggerActionMessages::TRIGGER_PING;
-			//}
+			packet.moduleId = moduleId;
+			packet.actionType = CustomModuleTriggerActionMessages::TRIGGER_PING;
+			return true;
+		}else if(commandArgs[0] == "ble_record"){
+			if(commandArgs.size() == 2){
+				mDistanceTag = atof(commandArgs[1].c_str());
+			}else{
+				mDistanceTag = 0.0;
+			}
+			mRecording = true;
+			configuration.moduleActive = true;
 			return true;
 		}else if(commandArgs[0] == "stop"){
-			mRunning = false;
+			configuration.moduleActive = false;
+			mRecording = false;
 			return true;
 		}
-
 	}
 	
 
@@ -164,9 +169,11 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 
 //---------------------------------------------------------------------------------------------------------------------
 void CustomModule::BleEventHandler(ble_evt_t* bleEvent){
-	if(bleEvent->header.evt_id == BLE_GAP_EVT_RSSI_CHANGED) {
-		i8 rssi = bleEvent->evt.gap_evt.params.rssi_changed.rssi;
-		logt("CUSTOMMOD", "BLE event handled with rssi: %d", rssi);
+	if(mRecording){
+		if(bleEvent->header.evt_id == BLE_GAP_EVT_RSSI_CHANGED) {
+			i8 rssi = bleEvent->evt.gap_evt.params.rssi_changed.rssi;
+			logt("CUSTOMMOD", "BLE event handled with (distance,rssi): %f, %d", mDistanceTag, rssi);
+		}
 	}
 };
 
