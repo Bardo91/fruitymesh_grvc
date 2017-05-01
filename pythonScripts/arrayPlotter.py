@@ -25,11 +25,22 @@ else:
     logFile = open(inputFileName,"r")
 
     rssis = []
+    tags  = []
     line = logFile.readline()
     while line != "":
         try:
-            number = int(line)
-            rssis.append(number)
+            lineTokens = line.split(",")
+            if len(lineTokens) == 1:
+                number = int(lineTokens[0])
+                rssis.append(number)
+            elif len(lineTokens) == 2:
+                tag = int(lineTokens[0])
+                number = int(lineTokens[1])
+                tags.append(tag)
+                rssis.append(number)
+            else:
+                print("Unexpected number of tokens")
+                exit()
         except:
             number = 0
         line = logFile.readline()
@@ -59,4 +70,6 @@ else:
     plt.plot(rssisMedian, 'r')
     plt.plot(rssisMode, 'g')
     plt.legend(['raw','mean', 'median','mode'])
+    plt.figure(2)
+    plt.plot(tags[T:], 'k')
     plt.show()

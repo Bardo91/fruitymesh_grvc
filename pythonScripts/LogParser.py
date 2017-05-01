@@ -13,7 +13,7 @@ else:
     outputFileName = inputFileName[:dotIdx] + "parsed.txt"
     parsedLogFile = open(outputFileName, "w")
 
-    templateStr = "[CustomModule.cpp@169 CUSTOMMOD]: BLE event handled with rssi: "
+    templateStr = "b'[CustomModule.cpp@175 CUSTOMMOD]: BLE event handled with (distance,rssi): "
 
     rssis = []
     line = logFile.readline()
@@ -21,9 +21,13 @@ else:
         idx = line.find(templateStr)
         if(idx != -1):
             try:
-                number = int(line[idx+len(templateStr):idx+len(templateStr)+3])
-                rssis.append(number)
-                parsedLogFile.write(str(number)+"\n")
+                tagNumber = line[idx+len(templateStr):]
+                tokens = tagNumber.split(",")
+                tokens[1] = tokens[1].replace("\\r\\n'\n", "")
+                tag = tokens[0];
+                rssi = int(tokens[1]);
+                rssis.append(rssi)
+                parsedLogFile.write(str(tag)+", "+str(rssi)+"\n")
             except:
                 number = 0
         line = logFile.readline()

@@ -172,7 +172,7 @@ void CustomModule::BleEventHandler(ble_evt_t* bleEvent){
 	if(mRecording){
 		if(bleEvent->header.evt_id == BLE_GAP_EVT_RSSI_CHANGED) {
 			i8 rssi = bleEvent->evt.gap_evt.params.rssi_changed.rssi;
-			logt("CUSTOMMOD", "BLE event handled with (distance,rssi): %f, %d", mDistanceTag, rssi);
+			logt("CUSTOMMOD", "BLE event handled with (distance,rssi): %d, %d", mDistanceTag, rssi);
 		}
 	}
 };

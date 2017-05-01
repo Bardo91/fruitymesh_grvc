@@ -62,7 +62,7 @@ class CustomModule: public Module
 
 		bool mRunning = false;
 		bool mRecording = false;
-		float mDistanceTag = 0.0;
+		int mDistanceTag = 0;
 	public:
 		CustomModule(u8 moduleId, Node* node, ConnectionManager* cm, const char* name, u16 storageSlot);
 

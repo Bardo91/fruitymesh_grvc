@@ -1,9 +1,11 @@
+#! /usr/bin/env python3
+
 import serial
 import signal
 
 from time import sleep
 import sys
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QTextEdit, QMessageBox)
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QSpinBox, QMessageBox)
 from PyQt5.QtCore import QThread
 
 class SerialReadThread(QThread):
@@ -52,7 +54,7 @@ class SerialGUI(QWidget):
         sys.exit(0)
 
     def startRecord(self):
-        self.ser.write(bytearray("custommod ble_record 1\r", "ascii"))
+        self.ser.write(bytearray("custommod ble_record "+ str(self.startId.value()) +"\r", "ascii"))
         self.ser.flush()
         sleep(0.1)
 
@@ -66,7 +68,7 @@ class SerialGUI(QWidget):
         self.ser.write(bytes)
 
     def __init__(self):
-        super().__init__()
+        super(  ).__init__()
         self.initUI()
 
     def initUI(self):
@@ -82,6 +84,9 @@ class SerialGUI(QWidget):
         self.startButton.resize(self.startButton.sizeHint())
         self.startButton.clicked.connect(self.startRecord);
         self.startButton.move(50, 50)
+        self.startId = QSpinBox(self)
+        self.startId.resize(self.startId.sizeHint())
+        self.startId.move(200, 50)
 
         self.stopButton = QPushButton('Stop', self)
         self.stopButton.resize(self.stopButton.sizeHint())
@@ -91,7 +96,6 @@ class SerialGUI(QWidget):
 
         self.setGeometry(300, 300, 300, 220)
         self.setWindowTitle('SerialWritter')
-        self.show()
 
         signal.signal(signal.SIGINT, self.closeHandler)
 
@@ -104,6 +108,7 @@ class SerialGUI(QWidget):
 
         print('Serial port openned\n')
 
+
         self.ser.write(b'status\n')
         self.readThread = SerialReadThread(self.ser)
         self.readThread.start()
@@ -111,6 +116,7 @@ class SerialGUI(QWidget):
 
 app = QApplication(sys.argv)
 ex = SerialGUI()
+ex.show()
 sys.exit(app.exec_())
 ##*------------------------------------------
 
