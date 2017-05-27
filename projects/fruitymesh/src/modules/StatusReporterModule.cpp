@@ -521,6 +521,7 @@ void StatusReporterModule::ConnectionPacketReceivedEventHandler(connectionPacket
 		}
 	}
 
+	/*	999 COMMENTED FOR CLEARNESS OF UART
 	//Parse Module responses
 	if(packetHeader->messageType == MESSAGE_TYPE_MODULE_ACTION_RESPONSE){
 
@@ -599,6 +600,7 @@ void StatusReporterModule::ConnectionPacketReceivedEventHandler(connectionPacket
 			}
 		}
 	}
+	*/
 }
 
 void StatusReporterModule::MeshConnectionChangedHandler(Connection* connection)

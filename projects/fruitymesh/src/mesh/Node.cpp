@@ -1359,7 +1359,8 @@ void Node::PrintStatus(void)
 void Node::SetTerminalTitle()
 {
 	//Change putty terminal title
-	trace("\033]0;Node %u (%s) ClusterSize:%d (%x), [%u, %u, %u, %u]\007", persistentConfig.nodeId, Config->serialNumber, clusterSize, clusterId, cm->connections[0]->partnerId, cm->connections[1]->partnerId, cm->connections[2]->partnerId, cm->connections[3]->partnerId);
+	// 999 COMMENTED FOR CLEARNESS OF UART
+	//trace("\033]0;Node %u (%s) ClusterSize:%d (%x), [%u, %u, %u, %u]\007", persistentConfig.nodeId, Config->serialNumber, clusterSize, clusterId, cm->connections[0]->partnerId, cm->connections[1]->partnerId, cm->connections[2]->partnerId, cm->connections[3]->partnerId);
 }
 
 void Node::PrintBufferStatus(void)

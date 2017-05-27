@@ -120,7 +120,7 @@ int main(void)
 	//Logger::getInstance().enableTag("CONN_DATA");
 	//Logger::getInstance().enableTag("STATES");
 	//Logger::getInstance().enableTag("SCANMOD");
-	Logger::getInstance().enableTag("MAIN");
+	//Logger::getInstance().enableTag("MAIN");
 	Logger::getInstance().enableTag("CUSTOMMOD");
 
 	//Initialize GPIOTE for Buttons
