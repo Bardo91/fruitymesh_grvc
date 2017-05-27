@@ -130,23 +130,7 @@ bool CustomModule::SendPing(nodeID targetNodeId) {
 //---------------------------------------------------------------------------------------------------------------------
 bool CustomModule::TerminalCommandHandler(string commandName, vector<string> commandArgs) {
 	if(commandName == "custommod") {
-		if(commandArgs[0] == "ping"){
-			nodeID targetNodeId = atoi(commandArgs[1].c_str());
-			//Get the id of the target node
-			logt("CUSTOMMOD", "Trying to ping node %u", targetNodeId);
-			for(int j=1; j<5; j++){
-				SendPing(targetNodeId);	
-			}
-			//TODO: Send ping packet to that node
-			connPacketModule packet;
-			packet.header.messageType = MESSAGE_TYPE_MODULE_TRIGGER_ACTION;
-			packet.header.sender = node->persistentConfig.nodeId;
-			packet.header.receiver = targetNodeId;
-
-			packet.moduleId = moduleId;
-			packet.actionType = CustomModuleTriggerActionMessages::TRIGGER_PING;
-			return true;
-		}else if(commandArgs[0] == "ble_record"){
+		if(commandArgs[0] == "ble_record"){
 			if(commandArgs.size() == 2){
 				mDistanceTag = atof(commandArgs[1].c_str());
 			}else{
@@ -158,6 +142,35 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 		}else if(commandArgs[0] == "stop"){
 			configuration.moduleActive = false;
 			mRecording = false;
+			return true;
+		}else if(commandArgs[0] == "send_pkt"){
+			std::string data;
+			if(commandArgs.size() == 2){
+				data = commandArgs[1];
+			}else{
+				logt("CUSTOMMOD", "Error, need extra argument with data to sent");
+				return false;
+			}
+
+			connPacketModule* outPacket = new connPacketModule();
+			outPacket->header.messageType = MESSAGE_TYPE_DATA_1;
+			outPacket->header.sender = node->persistentConfig.nodeId;
+			outPacket->moduleId = moduleId;
+			outPacket->actionType = CustomModuleTriggerActionMessages::TRIGGER_PING;
+			
+			memcpy(&outPacket->data, data.c_str(), data.size()*sizeof(char));
+			
+			int totalSize = SIZEOF_CONN_PACKET_MODULE + data.size()*sizeof(char);
+
+			for(int con = 0; con < 4; con++){	// Cover 4 possible connections
+				if(cm->connections[con]->isConnected()){
+					logt("CUSTOMMOD", "Sending msg from me (%u) to partner(%u), which is my connection number: %u", node->persistentConfig.nodeId, cm->connections[con]->partnerId, con);
+					outPacket->header.receiver = cm->connections[con]->partnerId;
+					cm->SendMessageToReceiver(NULL, (u8*) outPacket, totalSize, true);
+					logt("CUSTOMMOD", "Message sent");
+				}
+			}
+
 			return true;
 		}
 	}
