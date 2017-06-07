@@ -143,11 +143,10 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 			configuration.moduleActive = false;
 			mRecording = false;
 			return true;
-		}else if(commandArgs[0] == "send_pkt"){
-			std::string latitude = "NAN", longitude = "NAN";
-			if(commandArgs.size() == 3){
-				latitude = commandArgs[1];	// latitude
-				longitude = commandArgs[2];	// longitude
+		}else if(commandArgs[0] == "send_lat" || commandArgs[0] == "send_lon"){
+			std::string val = "NAN";
+			if(commandArgs.size() == 2){
+				val = commandArgs[1];	// latitude
 			}else{
 				logt("CUSTOMMOD", "Error, need extra argument with data to sent");
 				return false;
@@ -159,7 +158,12 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 			outPacket->moduleId = moduleId;
 			outPacket->actionType = CustomModuleTriggerActionMessages::TRIGGER_MESSAGE;
 			
-			std::string data = latitude + "," +longitude+",";
+			std::string data;
+			if(commandArgs[0] == "send_lat")
+				data = "///L"+val+"///";	
+			else if(commandArgs[0] == "send_lon")
+				data = "///N"+val+"///";	
+
 			memcpy(&outPacket->data, data.c_str(), data.size()*sizeof(char));
 			int totalSize = SIZEOF_CONN_PACKET_MODULE + sizeof(char)*data.size();
 
@@ -170,6 +174,7 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 				}
 			}
 
+			delete outPacket;
 			return true;
 		}
 	}
