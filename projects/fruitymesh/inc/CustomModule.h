@@ -23,8 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <Module.h>
-#include <thread>         // std::this_thread::sleep_for
-#include <chrono>         // std::chrono::seconds
 
 typedef struct
 {

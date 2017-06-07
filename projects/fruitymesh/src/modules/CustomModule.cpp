@@ -151,7 +151,7 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 				logt("CUSTOMMOD", "Error, need extra argument with data to sent");
 				return false;
 			}
-
+			
 			connPacketModule* outPacket = new connPacketModule();
 			outPacket->header.messageType = MESSAGE_TYPE_DATA_1;
 			outPacket->header.sender = node->persistentConfig.nodeId;
@@ -168,12 +168,15 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 			int totalSize = SIZEOF_CONN_PACKET_MODULE + sizeof(char)*data.size();
 
 			for(int con = 0; con < 4; con++){	// Cover 4 possible connections
-				if(cm->connections[con]->isConnected()){
-					outPacket->header.receiver = cm->connections[con]->partnerId;
-					cm->SendMessageToReceiver(NULL, (u8*) outPacket, totalSize, true);
+				if(cm){
+					if(cm->connections[con]){
+						if(cm->connections[con]->isConnected()){
+							outPacket->header.receiver = cm->connections[con]->partnerId;
+							cm->SendMessageToReceiver(NULL, (u8*) outPacket, totalSize, true);
+						}
+					}
 				}
 			}
-
 			delete outPacket;
 			return true;
 		}
