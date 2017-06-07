@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Node.h>
 #include <stdlib.h>
 #include <LedWrapper.h>
-
+#include <string>
 #include <math.h>
 
 //#include <iostream>       // std::cout, std::endl
@@ -144,9 +144,10 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 			mRecording = false;
 			return true;
 		}else if(commandArgs[0] == "send_pkt"){
-			std::string data;
-			if(commandArgs.size() == 2){
-				data = commandArgs[1];
+			std::string latitude = "NAN", longitude = "NAN";
+			if(commandArgs.size() == 3){
+				latitude = commandArgs[1];	// latitude
+				longitude = commandArgs[2];	// longitude
 			}else{
 				logt("CUSTOMMOD", "Error, need extra argument with data to sent");
 				return false;
@@ -156,18 +157,16 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 			outPacket->header.messageType = MESSAGE_TYPE_DATA_1;
 			outPacket->header.sender = node->persistentConfig.nodeId;
 			outPacket->moduleId = moduleId;
-			outPacket->actionType = CustomModuleTriggerActionMessages::TRIGGER_PING;
+			outPacket->actionType = CustomModuleTriggerActionMessages::TRIGGER_MESSAGE;
 			
+			std::string data = latitude + "," +longitude+",";
 			memcpy(&outPacket->data, data.c_str(), data.size()*sizeof(char));
-			
-			int totalSize = SIZEOF_CONN_PACKET_MODULE + data.size()*sizeof(char);
+			int totalSize = SIZEOF_CONN_PACKET_MODULE + sizeof(char)*data.size();
 
 			for(int con = 0; con < 4; con++){	// Cover 4 possible connections
 				if(cm->connections[con]->isConnected()){
-					logt("CUSTOMMOD", "Sending msg from me (%u) to partner(%u), which is my connection number: %u", node->persistentConfig.nodeId, cm->connections[con]->partnerId, con);
 					outPacket->header.receiver = cm->connections[con]->partnerId;
 					cm->SendMessageToReceiver(NULL, (u8*) outPacket, totalSize, true);
-					logt("CUSTOMMOD", "Message sent");
 				}
 			}
 
@@ -194,30 +193,28 @@ void CustomModule::BleEventHandler(ble_evt_t* bleEvent){
 void CustomModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPacket, Connection* connection, connPacketHeader* packetHeader, u16 dataLength) {
 	//Must call superclass for handling
 	Module::ConnectionPacketReceivedEventHandler(inPacket, connection, packetHeader, dataLength);
-
-	if(packetHeader->messageType == MESSAGE_TYPE_MODULE_TRIGGER_ACTION){
+	if(packetHeader->messageType == MESSAGE_TYPE_DATA_1){
 		connPacketModule* packet = (connPacketModule*)packetHeader;
-
 		//Check if our module is meant and we should trigger an action
 		if(packet->moduleId == moduleId){
-			if(packet->actionType == CustomModuleTriggerActionMessages::TRIGGER_PING){
+			if(packet->actionType == CustomModuleTriggerActionMessages::TRIGGER_MESSAGE){
                 //Inform the user
-               logt("CUSTOMMOD", "Ping request received with data: %d", packet->data[0]);
 
-                //TODO: Send PING_RESPONSE
-                //Send PING_RESPONSE
-               connPacketModule outPacket;
-               outPacket.header.messageType = MESSAGE_TYPE_MODULE_ACTION_RESPONSE;
-               outPacket.header.sender = node->persistentConfig.nodeId;
-               outPacket.header.receiver = packetHeader->sender;
+				std::string data((char*)packet->data);
+				logt("CUSTOMMOD", "Received msg message with data: %s", data.c_str());
 
-               outPacket.moduleId = moduleId;
-               outPacket.actionType = CustomModuleActionResponseMessages::PING_RESPONSE;
-               outPacket.data[0] = packet->data[0];
-               outPacket.data[1] = 111;
-
-               cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE + 2, true);
-
+				//TODO: Send PING_RESPONSE
+				//Send PING_RESPONSE
+				//connPacketModule outPacket;
+				//outPacket.header.messageType = MESSAGE_TYPE_MODULE_ACTION_RESPONSE;
+				//outPacket.header.sender = node->persistentConfig.nodeId;
+				//outPacket.header.receiver = packetHeader->sender;
+				//outPacket.moduleId = moduleId;
+				//outPacket.actionType = CustomModuleActionResponseMessages::PING_RESPONSE;
+				//outPacket.data[0] = packet->data[0];
+				//outPacket.data[1] = 111;
+				//cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE + 2, true);
+			   
 			}
 		}
 	}

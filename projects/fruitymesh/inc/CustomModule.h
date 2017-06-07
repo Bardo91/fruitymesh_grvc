@@ -53,11 +53,13 @@ class CustomModule: public Module
 		CustomModuleConfiguration configuration;
 
 		enum CustomModuleTriggerActionMessages{
-			TRIGGER_PING = 0
+			TRIGGER_PING = 0,
+			TRIGGER_MESSAGE = 1
 		};
 
 		enum CustomModuleActionResponseMessages{
-			PING_RESPONSE = 0
+			PING_RESPONSE = 0,
+			MESSAGE_RESPONSE = 1
 		};
 
 		bool mRunning = false;
