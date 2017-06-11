@@ -27,23 +27,15 @@ int main(int _argc, char **_argv){
                     continue;
 
                 line = line.substr(idFirst+3, idLast);
-                int idType = line.find_first_of('N');
-                if(idType == -1){
-                    idType = line.find_first_of('L');
-                    if(idType == -1)
-                        continue;
-                }
-
-                if(line[idType] == 'L'){
-                    float latitude = atof(line.substr(1, idLast).c_str());
-                    std::cout << "Latitude: " << latitude << std::endl;
-                }else if(line[idType] == 'N'){
-                    float longitude= atof(line.substr(1, idLast).c_str());
-                    std::cout << "Longitude: " << longitude << std::endl;
-                }else{
+                int idComma = line.find_first_of(',');
+                if(idComma == -1){
                     continue;
                 }
 
+                float latitude = atof(line.substr(0, idComma).c_str())/1e6;
+                float longitude= atof(line.substr(idComma+1, idLast).c_str())/1e6;
+
+                std::cout << "latitude: " << latitude << ", " << "longitude: " << longitude << std::endl;
             }
         }
     }
@@ -54,3 +46,4 @@ int main(int _argc, char **_argv){
     serial.close();
 	return 0;
 }
+

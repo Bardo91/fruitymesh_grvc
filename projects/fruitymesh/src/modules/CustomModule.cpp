@@ -143,29 +143,28 @@ bool CustomModule::TerminalCommandHandler(string commandName, vector<string> com
 			configuration.moduleActive = false;
 			mRecording = false;
 			return true;
-		}else if(commandArgs[0] == "send_lat" || commandArgs[0] == "send_lon"){
+		}else if(commandArgs[0] == "send_coord"){
 			std::string val = "NAN";
-			if(commandArgs.size() == 2){
-				val = commandArgs[1];	// latitude
-			}else{
+			if(commandArgs.size() != 3){
 				logt("CUSTOMMOD", "Error, need extra argument with data to sent");
 				return false;
 			}
+						
+			connPacketData1* outPacket = new connPacketData1();
 			
-			connPacketModule* outPacket = new connPacketModule();
 			outPacket->header.messageType = MESSAGE_TYPE_DATA_1;
 			outPacket->header.sender = node->persistentConfig.nodeId;
-			outPacket->moduleId = moduleId;
-			outPacket->actionType = CustomModuleTriggerActionMessages::TRIGGER_MESSAGE;
 			
-			std::string data;
-			if(commandArgs[0] == "send_lat")
-				data = "///L"+val+"///";	
-			else if(commandArgs[0] == "send_lon")
-				data = "///N"+val+"///";	
+			int latitude = atoi(commandArgs[1].c_str());
+			int longitude = atoi(commandArgs[2].c_str());
+			
+			memcpy(outPacket->payload.data, (u8*)&latitude, sizeof(int));
+			memcpy(outPacket->payload.data+sizeof(int), (u8*)&longitude, sizeof(int));
 
-			memcpy(&outPacket->data, data.c_str(), data.size()*sizeof(char));
-			int totalSize = SIZEOF_CONN_PACKET_MODULE + sizeof(char)*data.size();
+			//intPtr[1] = longitude;
+			outPacket->payload.length = sizeof(int)*2;
+
+			int totalSize = SIZEOF_CONN_PACKET_DATA_1;
 
 			for(int con = 0; con < 4; con++){	// Cover 4 possible connections
 				if(cm){
@@ -202,29 +201,25 @@ void CustomModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPack
 	//Must call superclass for handling
 	Module::ConnectionPacketReceivedEventHandler(inPacket, connection, packetHeader, dataLength);
 	if(packetHeader->messageType == MESSAGE_TYPE_DATA_1){
-		connPacketModule* packet = (connPacketModule*)packetHeader;
-		//Check if our module is meant and we should trigger an action
-		if(packet->moduleId == moduleId){
-			if(packet->actionType == CustomModuleTriggerActionMessages::TRIGGER_MESSAGE){
-                //Inform the user
+		connPacketData1* packet = (connPacketData1*)packetHeader;
+		//Inform the user
+		int latitude, longitude;
+		memcpy((u8*)&latitude, packet->payload.data, sizeof(int));
+		memcpy((u8*)&longitude, packet->payload.data + sizeof(int), sizeof(int));
+		
+		logt("CUSTOMMOD", "Received latitude and longitude ///%d,%d///", latitude, longitude);
 
-				std::string data((char*)packet->data);
-				logt("CUSTOMMOD", "Received msg message with data: %s", data.c_str());
-
-				//TODO: Send PING_RESPONSE
-				//Send PING_RESPONSE
-				//connPacketModule outPacket;
-				//outPacket.header.messageType = MESSAGE_TYPE_MODULE_ACTION_RESPONSE;
-				//outPacket.header.sender = node->persistentConfig.nodeId;
-				//outPacket.header.receiver = packetHeader->sender;
-				//outPacket.moduleId = moduleId;
-				//outPacket.actionType = CustomModuleActionResponseMessages::PING_RESPONSE;
-				//outPacket.data[0] = packet->data[0];
-				//outPacket.data[1] = 111;
-				//cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE + 2, true);
-			   
-			}
-		}
+		//TODO: Send PING_RESPONSE
+		//Send PING_RESPONSE
+		//connPacketModule outPacket;
+		//outPacket.header.messageType = MESSAGE_TYPE_MODULE_ACTION_RESPONSE;
+		//outPacket.header.sender = node->persistentConfig.nodeId;
+		//outPacket.header.receiver = packetHeader->sender;
+		//outPacket.moduleId = moduleId;
+		//outPacket.actionType = CustomModuleActionResponseMessages::PING_RESPONSE;
+		//outPacket.data[0] = packet->data[0];
+		//outPacket.data[1] = 111;
+		//cm->SendMessageToReceiver(NULL, (u8*)&outPacket, SIZEOF_CONN_PACKET_MODULE + 2, true);
 	}
 
 
