@@ -11,7 +11,9 @@ read
 JLINK_COMMANDER_PATH="${HOME}/JLink_Linux_V498e_x86_64"
 
 # ---- SDK stuff ----
-INSTALL_PATH="${HOME}/nrf"
+INSTALL_PATH="${PWD}"
+
+echo "export FRUITMESH_ROOT=${INSTALL_PATH}" >> ~/.bashrc
 
 EHAL_PATH="${INSTALL_PATH}/sdk/ehal_2015_09_08"
 CMSIS_PATH="${NSTALL_PATH}/sdk/arm_cmsis_4_3"

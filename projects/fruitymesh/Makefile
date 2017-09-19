@@ -10,7 +10,9 @@ SERIAL_DEVICE ?= /dev/ttyACM0  # FIXME Use proper matching for OSX compatiblity
 
 OUTPUT_FILENAME = $(PROJECT_NAME)
 
-NRF5_SDK_PATH ?= $(HOME)/nrf/sdk/nrf51_sdk_latest
+FRUITMESH_PATH = $(FRUITMESH_ROOT)
+
+NRF5_SDK_PATH ?= $(FRUITMESH_PATH)/sdk/nrf51_sdk_latest
 COMPONENTS     = $(NRF5_SDK_PATH)/components
 TEMPLATE_PATH  = $(COMPONENTS)/toolchain/gcc
 
@@ -34,7 +36,7 @@ else
 endif
 
 RM              := rm -rf
-NRFJPROG        := /home/bardo91/nrf/download/nrfjprog/nrfjprog
+NRFJPROG        := $(FRUITMESH_PATH)/download/nrfjprog/nrfjprog
 
 # Toolchain commands
 CC              := '/usr/bin/$(GNU_PREFIX)-gcc'
