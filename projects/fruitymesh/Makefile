@@ -10,7 +10,7 @@ SERIAL_DEVICE ?= /dev/ttyACM0  # FIXME Use proper matching for OSX compatiblity
 
 OUTPUT_FILENAME = $(PROJECT_NAME)
 
-NRF5_SDK_PATH ?= $(HOME)/nrf/sdk/nrf5_sdk_latest
+NRF5_SDK_PATH ?= $(HOME)/nrf/sdk/nrf51_sdk_latest
 COMPONENTS     = $(NRF5_SDK_PATH)/components
 TEMPLATE_PATH  = $(COMPONENTS)/toolchain/gcc
 
