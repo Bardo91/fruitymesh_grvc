@@ -59,20 +59,3 @@ ln -s ${NRF51_SDK_PATH} nrf51_sdk_latest
 
 rm -f nrf52_sdk_latest
 ln -s ${NRF52_SDK_PATH} nrf52_sdk_latest
-
-# -----------------------------------------------------------
-echo
-echo
-echo "Now, we are cloning the fruitymesh project in the projects directory"
-echo "press any key to continue"
-echo "if you want to clone it yourself, press CTRL+C"
-
-read
-
-mkdir ${INSTALL_PATH}/projects
-cd ${INSTALL_PATH}/projects
-
-git clone https://github.com/mwaylabs/fruitymesh.git
-
-echo
-echo "Setup finished"
