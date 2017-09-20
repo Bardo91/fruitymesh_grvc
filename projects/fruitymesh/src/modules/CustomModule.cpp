@@ -207,7 +207,7 @@ void CustomModule::ConnectionPacketReceivedEventHandler(connectionPacket* inPack
 		memcpy((u8*)&latitude, packet->payload.data, sizeof(int));
 		memcpy((u8*)&longitude, packet->payload.data + sizeof(int), sizeof(int));
 		
-		logt("CUSTOMMOD", "Received latitude and longitude ///%d,%d///", latitude, longitude);
+		logt("CUSTOMMOD", "Received latitude and longitude ///%d,%d,%d///", packetHeader->sender, latitude, longitude);
 
 		//TODO: Send PING_RESPONSE
 		//Send PING_RESPONSE
